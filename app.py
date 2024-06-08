@@ -36,37 +36,47 @@ pin = st.text_input("PIN")
 region = st.selectbox("Select Region", list(REGIONS.keys()), format_func=lambda x: REGIONS[x])
 brand = st.selectbox("Select Brand", list(BRANDS.keys()), format_func=lambda x: BRANDS[x])
 
-# Authenticate button
-if st.button("Authenticate"):
+# Function to authenticate and store the VehicleManager instance in session state
+def authenticate():
     if username and password:
         try:
             vm = VehicleManager(region=region, brand=brand, username=username, password=password, pin=pin)
             vm.check_and_refresh_token()
             vm.update_all_vehicles_with_cached_state()
-            vehicle_info = vm.vehicles
+            st.session_state.vm = vm
             st.success("Authentication Successful!")
-                # Retrieve and print vehicle information
-            try:
-                vm.update_all_vehicles_with_cached_state()
-                for vehicle_id in vm.vehicles:
-                    vehicle = vm.get_vehicle(vehicle_id)
-                    print_vehicle_info(vehicle)
-            except Exception as e:
-                print(f"Failed to retrieve vehicle information: {e}")
-                for vehicle in vehicle_info:
-                    print_vehicle_info(vehicle)
+            return True
         except Exception as e:
             st.error(f"Failed to authenticate: {e}")
+            return False
     else:
         st.error("Please enter your username and password")
+        return False
+
+# Authenticate button
+if st.button("Authenticate"):
+    if authenticate():
+        # Retrieve and print vehicle information
+        try:
+            vm = st.session_state.vm
+            for vehicle_id in vm.vehicles:
+                vehicle = vm.get_vehicle(vehicle_id)
+                print_vehicle_info(vehicle)
+        except Exception as e:
+            st.error(f"Failed to retrieve vehicle information: {e}")
 
 # Refresh button
 if st.button("Refresh Data"):
-    try:
-        vm.check_and_refresh_token()
-        vm.update_all_vehicles_with_cached_state()
-        vehicle_info = vm.vehicles
-        for vehicle in vehicle_info:
-            print_vehicle_info(vehicle)
-    except Exception as e:
-        st.error(f"Failed to refresh data: {e}")
+    if 'vm' in st.session_state:
+        try:
+            vm = st.session_state.vm
+            vm.check_and_refresh_token()
+            vm.update_all_vehicles_with_cached_state()
+            for vehicle_id in vm.vehicles:
+                vehicle = vm.get_vehicle(vehicle_id)
+                print_vehicle_info(vehicle)
+        except Exception as e:
+            st.error(f"Failed to refresh data: {e}")
+    else:
+        st.error("Please authenticate first")
+
