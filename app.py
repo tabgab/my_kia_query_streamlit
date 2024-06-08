@@ -25,7 +25,7 @@ def print_vehicle_info(vehicle):
     st.write("")
 
 # Streamlit App
-st.title("Hyundai Kia Connect API")
+st.title("Query clound information for your KIA, HYUNDAI or GENESIS")
 
 # Input fields for username, password, and PIN
 username = st.text_input("Username")
