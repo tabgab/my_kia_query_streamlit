@@ -1,17 +1,11 @@
 import streamlit as st
-import subprocess
-import sys
 
-# Function to install the package
-def install_package(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-# Try to import the package, install if not available
+# Attempt to import the package
 try:
     from hyundai_kia_connect_api import VehicleManager
-except ImportError:
-    install_package('hyundai_kia_connect_api')
-    from hyundai_kia_connect_api import VehicleManager
+except ImportError as e:
+    st.error("Required package is not installed. Please ensure 'hyundai_kia_connect_api' is listed in the requirements.txt file.")
+    st.stop()
 
 # Constants
 REGIONS = {1: "Europe", 2: "Canada", 3: "USA", 4: "China", 5: "Australia"}
