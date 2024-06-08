@@ -1,5 +1,17 @@
 import streamlit as st
-from hyundai_kia_connect_api import VehicleManager
+import subprocess
+import sys
+
+# Function to install the package
+def install_package(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Try to import the package, install if not available
+try:
+    from hyundai_kia_connect_api import VehicleManager
+except ImportError:
+    install_package('hyundai_kia_connect_api')
+    from hyundai_kia_connect_api import VehicleManager
 
 # Constants
 REGIONS = {1: "Europe", 2: "Canada", 3: "USA", 4: "China", 5: "Australia"}
